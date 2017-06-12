@@ -1,0 +1,37 @@
+version: '2.1'
+services:
+  selenium-hub:
+    container_name: selenium-hub
+    build:
+      context: Hub
+      dockerfile: Dockerfile
+    expose:
+     - 4444
+     - 80
+     - 5900
+    ports:
+      - "4444:4444"
+      - "5900:5900"
+  selenium-node:
+    container_name: selenium-node
+    build:
+      context: NodeFirefox
+      dockerfile: Dockerfile
+    depends_on:
+      - selenium-hub
+    links:
+      - selenium-hub
+    environment:
+      - HUB_PORT_4444_TCP_ADDR=selenium-hub
+      - HUB_PORT_4444_TCP_PORT=4444
+    expose:
+      - "5555"
+  main:
+    container_name: main
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+     - selenium-node
+    links:
+     - selenium-node
